@@ -2,9 +2,13 @@ import os
 from dotenv import load_dotenv
 from speech_module import speech_recognizer
 from openai import OpenAI
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+if not GOOGLE_API_KEY:
+    raise EnvironmentError("❌ GOOGLE_API_KEY not found in .env file.")
 
 client = OpenAI(
     api_key=GOOGLE_API_KEY,
@@ -29,18 +33,29 @@ def message():
 
         Input: I have created an empty file named `test.py`.  Do you want me to add any content to it?
         Output: I have created the file. Do you want me to add content?
-
     """
-    # while True:
-    result = client.beta.chat.completions.parse(
-        model="gemini-1.5-flash",
-        response_format=messageType,
-        messages=[
-            {'role':'system', 'content':systemPrompt},
-            {'role':'user', 'content':speech_recognizer()},
-        ]
-    )
 
+    try:
+        user_input = speech_recognizer()
+        if not user_input:
+            return "❌ No input captured from speech."
 
-    result = result.choices[0].message.parsed.res
-    return result
+        print("🎙️ Recognized Speech:", user_input)
+
+        response = client.chat.completions.create(
+            model="gemini-1.5-flash",
+            messages=[
+                {"role": "system", "content": systemPrompt},
+                {"role": "user", "content": user_input}
+            ]
+        )
+
+        try:
+            content = response.choices[0].message.content.strip()
+            validated = messageType(res=content)
+            return validated.res
+        except (AttributeError, IndexError, ValidationError) as parse_error:
+            return f"❌ Response parsing failed: {parse_error}"
+
+    except Exception as e:
+        return f"❌ Unexpected error: {e}"

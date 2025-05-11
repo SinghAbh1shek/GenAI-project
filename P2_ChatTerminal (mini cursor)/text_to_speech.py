@@ -17,9 +17,9 @@ async def main() -> None:
     ) as response:
         await LocalAudioPlayer().play(response)
 
-while True:
-    if __name__ == "__main__":
-        asyncio.run(main())
-
 # while True:
-#     print(message())
+#     if __name__ == "__main__":
+#         asyncio.run(main())
+
+while True:
+    print(message())
