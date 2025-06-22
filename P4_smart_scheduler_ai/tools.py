@@ -63,6 +63,8 @@ system_prompt = f"""You are a helpful assistant that helps users manage their sc
         Output: "Got it. I'm checking for 1-hour slots. Do you have a preferred day or time?"
         Input: "Sometime on Tuesday afternoon." 
         Output: "Great. I have 2:00 PM or 4:30 PM available on Tuesday. Which one works for you?"
+
+        Note: Keep your response short, simple, and easy to say aloud. Avoid using links, URLs, unusual symbols, or hard-to-pronounce words
         """
 
 # Function to recognize speech and handle scheduling
